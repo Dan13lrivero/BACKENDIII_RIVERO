@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 import usersRouter from './routes/users.router.js';
 import petsRouter from './routes/pets.router.js';
@@ -10,6 +12,27 @@ import mocksRouter from './routes/mocks.router.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API de Adopción de Mascotas',
+      version: '1.0.0',
+      description: 'Documentación de la API para el sistema de adopción de mascotas'
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: 'Servidor de desarrollo'
+      }
+    ]
+  },
+  apis: ['./src/docs/*.yaml']
+};
+
+const swaggerSpecs = swaggerJsdoc(swaggerOptions);
+
 const connection = mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
@@ -17,10 +40,15 @@ const connection = mongoose.connect(process.env.MONGO_URL)
 app.use(express.json());
 app.use(cookieParser());
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+
 app.use('/api/users', usersRouter);
 app.use('/api/pets', petsRouter);
 app.use('/api/adoptions', adoptionsRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/mocks', mocksRouter);
 
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Listening on ${PORT}`);
+  console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+});
