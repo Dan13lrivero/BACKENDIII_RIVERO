@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
@@ -33,7 +36,9 @@ const swaggerOptions = {
 
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);
 
-const connection = mongoose.connect(process.env.MONGO_URL)
+const mongoUrl = process.env.MONGO_URI || process.env.MONGO_URL;
+
+mongoose.connect(mongoUrl)
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
