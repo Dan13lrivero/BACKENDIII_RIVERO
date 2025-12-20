@@ -16,6 +16,8 @@ import mocksRouter from './routes/mocks.router.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+mongoose.set('strictQuery', false);
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
